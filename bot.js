@@ -1,9 +1,7 @@
 const axios = require("axios");
 const { Telegraf, Markup } = require("telegraf");
-const { message } = require("telegraf/filters");
-require("dotenv").config();
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf("6355806035:AAHEpHz1AwtI0IDC5p-zJhSVEbq6V4yurkc");
 
 const start = async () => {
   bot.start((ctx) => {
@@ -13,14 +11,14 @@ const start = async () => {
     }, 1000);
   });
 
-  bot.on("message", async function (ctx) {
-    let text = ctx.update.message.text.toLowerCase();
+  let marker = 1;
 
+  bot.on("message", async function (ctx) {
+    const text = ctx.update.message.text.toLowerCase();
     const url = "http://localhost:5000/api/users";
     const res = await axios.get(url);
 
     const users = res.data;
-
     const result = [];
 
     for (const user of users) {
@@ -36,16 +34,52 @@ const start = async () => {
           [Markup.button.callback("Список команд", "btn_3")],
         ])
       );
-      text = null;
-      marker = "marker_0";
     }
-    if (text && marker === "marker_0") {
+    if (owner !== text && marker === 1) {
       ctx.reply(`Вам надо зарегестрироваться`);
       setTimeout(() => {
-        ctx.reply(`Введите своё имя`);
+        ctx.replyWithHTML("Введите своe имя для регистрации");
       }, 1000);
-      text = null;
-      marker = "marker_1";
+      setTimeout(() => {
+        marker = 2;
+      }, 1500);
+    }
+    if (owner !== text && marker === 2) {
+      ctx.reply(`Введите свой email`);
+      const dataName = { name: text };
+      data = { ...dataName };
+      setTimeout(() => {
+        marker = 3;
+      }, 1000);
+    }
+    if (owner !== text && marker === 3) {
+      ctx.reply(`Введите свой пароль`);
+      const dataEmail = { email: text };
+      data = { ...data, ...dataEmail };
+      setTimeout(() => {
+        marker = 4;
+      }, 1000);
+    }
+    if (owner !== text && marker === 4) {
+      data.password = text;
+      const dataPas = { password: text };
+      data = { ...data, ...dataPas };
+      await axios.post(url, data);
+      ctx.reply(`Поздравляем`);
+      setTimeout(() => {
+        ctx.replyWithHTML(
+          "Посмотри что я умею 👇",
+          Markup.inlineKeyboard([
+            [Markup.button.callback("Список команд", "btn_3")],
+          ])
+        );
+        marker = 5;
+      }, 1000);
+    }
+    if (owner !== text && marker === 5) {
+      ctx.reply(`Я не понимаю`);
+      setTimeout(() => {}, 1000);
+      marker = 1;
     }
   });
 
