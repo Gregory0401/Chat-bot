@@ -2,7 +2,9 @@ const axios = require("axios");
 const { Telegraf, Markup } = require("telegraf");
 
 const API_KEY_BOT = process.env;
-const bot = new Telegraf(API_KEY_BOT, { polling: true });
+const bot = new Telegraf(API_KEY_BOT, {
+  polling: true,
+});
 
 bot.start((ctx) => {
   ctx.reply(`Привет`);
@@ -115,7 +117,7 @@ bot.action("btn_3", (ctx) => {
   );
 });
 
-bot.launch();
+const start = () => bot.launch();
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
